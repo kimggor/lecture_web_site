@@ -1,0 +1,62 @@
+<!-- src/main/resources/templates/register.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* 간단한 스타일링 */
+        .registration-container {
+            width: 400px;
+            margin: 50px auto;
+            border: 1px solid #ccc;
+            padding: 30px;
+            border-radius: 5px;
+        }
+        .registration-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .registration-container input, .registration-container select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+        .registration-container .error {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="registration-container">
+    <h2>회원가입</h2>
+    <div class="error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+    <form method="post" th:action="@{/register}" th:object="${student}">
+        <label for="name">이름:</label>
+        <input id="name" required th:field="*{name}" type="text">
+
+        <label for="email">이메일:</label>
+        <input id="email" required th:field="*{email}" type="email">
+
+        <label for="password">비밀번호:</label>
+        <input id="password" required th:field="*{password}" type="password">
+
+        <label for="grade">학년:</label>
+        <input id="grade" max="4" min="1" required th:field="*{grade}" type="number">
+
+        <label for="department">학과:</label>
+        <select id="department" required th:field="*{department.departmentId}">
+            <option disabled selected value="">선택하세요</option>
+            <th:block th:each="dept : ${departments}">
+                <option th:text="${dept.departmentName}" th:value="${dept.departmentId}"></option>
+            </th:block>
+        </select>
+
+        <input type="submit" value="회원가입">
+    </form>
+</div>
+</body>
+</html>

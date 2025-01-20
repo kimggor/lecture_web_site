@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Header Fragment</title>
+</head>
+<body>
+<div class="header-wrap">
+    <div class="util-wrap">
+        <div style="display: flex; height: 60px">
+            <div class="header-img">
+                <img alt="" th:src="@{/images/임시이미지.svg}"/>
+            </div>
+            <div class="semester" th:text="'2024학년도 1학기'">2024학년도 1학기</div>
+        </div>
+        <div class="logout">
+            <a th:href="@{/logout}">로그아웃</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

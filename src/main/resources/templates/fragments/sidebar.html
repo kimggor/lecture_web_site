@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sidebar Fragment</title>
+</head>
+<body>
+<div class="wrapper">
+    <div class="nav">
+        <div class="nav-header">
+            <a class="is-active" href="#">KOREAN</a>
+            <a href="#">ENGLISH</a>
+        </div>
+        <div class="nav-main">
+            <ul class="nav-menu">
+                <li id="menu_sugang">
+                    <a th:classappend="${path.equals('/courses')} ? 'is-active' : ''"
+                       th:href="@{/courses}">수강신청</a>
+                </li>
+                <li id="menu_cart">
+                    <a th:classappend="${path.equals('/cart')} ? 'is-active' : ''"
+                       th:href="@{/cart}">장바구니</a>
+                </li>
+                <li class="has-child">
+                    <a href="#"
+                       th:classappend="${path.equals('/lectHakbu') || path.equals('/lectSimilar') || path.equals('/schedule')} ? 'is-active' : ''">과목조회</a>
+                    <ul style="padding-left: 20px; margin: 0">
+                        <li>
+                            <a th:classappend="${path.equals('/lectHakbu')} ? 'is-active' : ''"
+                               th:href="@{/lectHakbu}">학부 과목조회</a>
+                        </li>
+                        <li>
+                            <a th:classappend="${path.equals('/lectSimilar')} ? 'is-active' : ''"
+                               th:href="@{/lectSimilar}">학부 유사과목</a>
+                        </li>
+                        <li>
+                            <a th:classappend="${path.equals('/schedule')} ? 'is-active' : ''"
+                               th:href="@{/schedule}">시간표 보기</a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- 추가적인 메뉴 항목들도 동일하게 수정 -->
+            </ul>
+        </div>
+        <div class="nav-footer">
+            <button class="btn-footer" type="button">사용자 매뉴얼 (PC)</button>
+            <button class="btn-footer" type="button">사용자 매뉴얼 (모바일앱)</button>
+            <div class="copy">
+                Copyright © 2020 Korea University.<br/>
+                All Rights Reserved.
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

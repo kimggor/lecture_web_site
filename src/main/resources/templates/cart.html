@@ -1,0 +1,232 @@
+<!-- src/main/resources/templates/cart.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>장바구니</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- Bootstrap CSS (선택 사항) -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- CSRF 메타 태그 추가 -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <style>
+        /* 추가적인 스타일링 */
+        .container {
+            margin-top: 50px;
+        }
+        .btn-disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        /* 스크롤 가능한 테이블 컨테이너 */
+        .table-responsive-custom {
+            max-height: 600px; /* 원하는 높이로 설정 */
+            overflow-y: auto;
+        }
+    </style>
+    <!-- jQuery 및 JavaScript 파일 포함 -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script th:src="@{/js/cart.js}"></script>
+</head>
+<body>
+<!-- 네비게이션 바 -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">수강신청 시스템</a>
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="#" th:href="@{/enrollment}">수강신청</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="#" th:href="@{/cart}">장바구니</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" th:href="@{/wishlist}">관심목록</a>
+            </li>
+        </ul>
+        <span class="navbar-text">
+            <a href="#" th:href="@{/logout}">로그아웃</a>
+        </span>
+    </div>
+</nav>
+
+<div class="container">
+    <h1 class="text-center">장바구니</h1>
+
+    <!-- 필터링 폼 -->
+    <form class="form-inline justify-content-center mb-4" id="filterForm">
+        <div class="form-group mx-sm-3 mb-2">
+            <label class="mr-2" for="departmentFilter">학과:</label>
+            <select class="form-control" id="departmentFilter" name="department">
+                <option value="">전체</option>
+                <th:block th:each="dept : ${departmentsMap}">
+                    <option th:text="${dept.value}" th:value="${dept.value}"></option>
+                </th:block>
+            </select>
+        </div>
+        <div class="form-group mx-sm-3 mb-2">
+            <label class="mr-2" for="classificationFilter">분류:</label>
+            <select class="form-control" id="classificationFilter" name="classification">
+                <option value="">전체</option>
+                <option value="전공필수">전공필수</option>
+                <option value="전공선택">전공선택</option>
+                <option value="교양">교양</option>
+                <option value="Core">코어</option>
+            </select>
+        </div>
+        <button class="btn btn-primary mb-2" id="filterButton" type="button">필터링</button>
+    </form>
+
+    <!-- 스크롤 가능한 강의 목록 테이블 -->
+    <div class="table-responsive-custom">
+        <table class="table table-bordered" id="coursesTable">
+            <thead>
+            <tr>
+                <th>장바구니 추가</th>
+                <th>강의명</th>
+                <th>학과</th>
+                <th>분류</th>
+                <th>학기</th>
+                <th>학점</th>
+                <th>교수명</th>
+                <th>강의실</th>
+                <th>시간</th>
+                <th>정원</th>
+                <th>신청 인원</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- 외부 반복문: 각 Course -->
+            <th:block th:each="course : ${allCourses}">
+                <!-- 내부 반복문: 각 ClassEntity -->
+                <th:block th:each="classEntity : ${course.classes}">
+                    <tr id="course-row-${course.courseId}-class-${classEntity.classId}">
+                        <td>
+                            <button class="btn btn-sm btn-primary btn-add-cart"
+                                    th:attr="disabled=${#lists.contains(cartCourseIds, course.courseId) or #lists.contains(enrolledCourseIds, course.courseId)}"
+                                    th:attrappend="title=${#lists.contains(cartCourseIds, course.courseId) ? '이미 장바구니에 추가된 강의입니다.' : (#lists.contains(enrolledCourseIds, course.courseId) ? '이미 수강신청된 강의입니다.' : '장바구니에 추가합니다.')}"
+                                    th:data-class-id="${classEntity.classId}"
+                                    th:data-course-id="${course.courseId}"
+                                    type="button">장바구니 추가
+                            </button>
+                        </td>
+                        <td th:text="${course.courseName}"></td>
+                        <td th:text="${course.department.departmentName}"></td>
+                        <td th:text="${course.classification}"></td>
+                        <td th:text="${course.semester}"></td>
+                        <td th:text="${course.credit}"></td>
+                        <td th:text="${classEntity.professor.name}"></td>
+                        <td th:text="${classEntity.roomNo}"></td>
+                        <td th:text="${classEntity.dayOfWeek + ' (' + classEntity.startTime + '-' + classEntity.endTime + ')'}"></td>
+                        <td th:text="${classEntity.capacity}"></td>
+                        <td th:text="${classEntity.enrolled}"></td>
+                    </tr>
+                </th:block>
+                <!-- 클래스가 없는 경우 표시 -->
+                <tr th:if="${#lists.size(course.classes) == 0}">
+                    <td class="text-center" colspan="11">클래스 없음</td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 장바구니 목록 -->
+    <h2 class="mt-5">장바구니 목록</h2>
+    <div class="table-responsive-custom">
+        <table class="table table-bordered" id="cartCoursesTable">
+            <thead>
+            <tr>
+                <th>수강신청</th>
+                <th>삭제</th>
+                <th>강의명</th>
+                <th>학과</th>
+                <th>분류</th>
+                <th>학기</th>
+                <th>학점</th>
+                <th>교수명</th>
+                <th>강의실</th>
+                <th>시간</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- 장바구니 아이템 반복 -->
+            <tr th:each="cart : ${courseCarts}" th:id="'cart-row-' + ${cart.cartId}">
+                <td>
+                    <button class="btn btn-sm btn-success btn-enroll-from-cart"
+                            th:data-cart-id="${cart.cartId}"
+                            th:data-class-id="${cart.classEntity.classId}"
+                            th:data-course-id="${cart.course.courseId}"
+                            title="장바구니에서 바로 수강 신청합니다."
+                            type="button">수강신청
+                    </button>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-danger btn-remove-cart"
+                            th:data-cart-id="${cart.cartId}"
+                            title="장바구니에서 삭제합니다."
+                            type="button">삭제
+                    </button>
+                </td>
+                <td th:text="${cart.course.courseName}"></td>
+                <td th:text="${cart.course.department.departmentName}"></td>
+                <td th:text="${cart.course.classification}"></td>
+                <td th:text="${cart.course.semester}"></td>
+                <td th:text="${cart.course.credit}"></td>
+                <td th:text="${cart.classEntity.professor.name}"></td>
+                <td th:text="${cart.classEntity.roomNo}"></td>
+                <td th:text="${cart.classEntity.dayOfWeek + ' (' + cart.classEntity.startTime + '-' + cart.classEntity.endTime + ')'}"></td>
+            </tr>
+            <tr th:if="${courseCarts.size() == 0}">
+                <td class="text-center" colspan="10">장바구니에 담긴 강의가 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 신청한 강의 목록 -->
+    <h2 class="mt-5">신청한 강의 목록</h2>
+    <div class="table-responsive-custom">
+        <table class="table table-bordered" id="enrolledCoursesTable">
+            <thead>
+            <tr>
+                <th>삭제</th>
+                <th>강의명</th>
+                <th>학과</th>
+                <th>분류</th>
+                <th>학기</th>
+                <th>학점</th>
+                <th>교수명</th>
+                <th>강의실</th>
+                <th>시간</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="enrollment : ${enrollments}" th:id="'enrollment-row-' + ${enrollment.enrollmentId}">
+                <td>
+                    <button class="btn btn-sm btn-danger btn-remove-enrollment"
+                            th:data-course-id="${enrollment.course.courseId}"
+                            th:data-enrollment-id="${enrollment.enrollmentId}"
+                            title="신청한 강의를 삭제합니다."
+                            type="button">삭제
+                    </button>
+                </td>
+                <td th:text="${enrollment.course.courseName}"></td>
+                <td th:text="${enrollment.course.department.departmentName}"></td>
+                <td th:text="${enrollment.course.classification}"></td>
+                <td th:text="${enrollment.course.semester}"></td>
+                <td th:text="${enrollment.course.credit}"></td>
+                <td th:text="${enrollment.classEntity.professor.name}"></td>
+                <td th:text="${enrollment.classEntity.roomNo}"></td>
+                <td th:text="${enrollment.classEntity.dayOfWeek + ' (' + enrollment.classEntity.startTime + '-' + enrollment.classEntity.endTime + ')'}"></td>
+            </tr>
+            <tr th:if="${enrollments.size() == 0}">
+                <td class="text-center" colspan="9">신청한 강의가 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

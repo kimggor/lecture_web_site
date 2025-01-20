@@ -1,0 +1,54 @@
+<!-- src/main/resources/templates/login.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* 간단한 스타일링 */
+        .login-container {
+            width: 300px;
+            margin: 100px auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .login-container h2 {
+            text-align: center;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+        .login-container .error {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <h2>로그인</h2>
+    <div class="error" th:if="${param.error}">
+        잘못된 이메일 또는 비밀번호입니다.
+    </div>
+    <div class="error" th:if="${param.logout}">
+        로그아웃 되었습니다.
+    </div>
+
+    <form method="post" th:action="@{/login}">
+        <label for="email">이메일:</label>
+        <input id="email" name="email" required type="text">
+
+        <label for="password">비밀번호:</label>
+        <input id="password" name="password" required type="password">
+
+        <input type="submit" value="로그인">
+    </form>
+    <a th:href="@{/register}">회원가입</a>
+</div>
+</body>
+</html>
